@@ -14,11 +14,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Animator animator; //애니메이션 
 
     [Header("Property")]
+    
     [SerializeField] float breakPower;
     [SerializeField] float movePower;
     [SerializeField] float maxXSpeed;
     [SerializeField] float maxYSpeed;
     [SerializeField] float jumpSpeed;
+
+    [SerializeField] LayerMask groundCheckLayer;
+    private bool isGround; //땅 체크 --> 연속 점프 방지 
 
 
     Vector2 moveDir;
@@ -89,10 +93,44 @@ public class PlayerController : MonoBehaviour
     }
     void OnJump(InputValue value)
     {
-        if(value.isPressed)
+        if(value.isPressed&&isGround)
         {
-            Jump();
+            Jump(); //이단 점프 방지 땅과 닿을 때만 점프
         }
+    }
+    private int groundCount; //몇 개의 충돌체와 충돌 중 인지 파악 
+    //유니티 레이어, 레이어 마스크 충돌 및 둘의 차이  공부 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        /*if (((1 << collision.gameObject.layer) & groundCheckLayer) != 0) //밟은 상태 체크 
+        {
+            Debug.Log("땅 밟음");
+        }
+*/
+        if(groundCheckLayer.Contain(collision.gameObject.layer))
+        {
+            groundCount++;
+            isGround = groundCount>0;
+            animator.SetBool("IsGround", isGround);
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        /*if (((1 << collision.gameObject.layer) & groundCheckLayer) == 0) //밟은 상태 체크 
+        {
+            Debug.Log("땅 에서 떨어짐");
+        }*/
+        //유니티 레이어의 레이어마스크 와 비트연산 
+
+        if (groundCheckLayer.Contain(collision.gameObject.layer))
+        {
+            groundCount--;
+            isGround = groundCount>0; //true false 
+            animator.SetBool("IsGround", isGround);
+        }
+        
+
     }
 
     void Start()
