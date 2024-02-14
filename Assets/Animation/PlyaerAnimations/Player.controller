@@ -113,7 +113,7 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 3
     m_ConditionEvent: YSpeed
-    m_EventTreshold: 0.02
+    m_EventTreshold: 0.01
   - m_ConditionMode: 2
     m_ConditionEvent: IsGround
     m_EventTreshold: 0
@@ -290,7 +290,7 @@ AnimatorStateTransition:
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 8069117858385646237}
   m_Solo: 0
-  m_Mute: 0
+  m_Mute: 1
   m_IsExit: 0
   serializedVersion: 3
   m_TransitionDuration: 0
@@ -311,7 +311,7 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 4
     m_ConditionEvent: YSpeed
-    m_EventTreshold: -0.05
+    m_EventTreshold: -0.01
   - m_ConditionMode: 2
     m_ConditionEvent: IsGround
     m_EventTreshold: 0
