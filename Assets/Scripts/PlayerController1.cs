@@ -4,14 +4,22 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
+
+    //타일맵 땅 바닥에 collider 추가 composite collider --> rigid 추가 후 xyz 제약 걸어주기 
 {
     //inspector 창에서 debug모드로 private변수들도 제대로 변화되고 있는지 확인이 가능하다. 
+    [Header("Component")]
     [SerializeField] Rigidbody2D rigid; //private 변수도 serial로 외부에서 할당 가능 (직렬화)
+    [SerializeField] SpriteRenderer render; //스프라이트 렌더러 
+    [SerializeField] Animator animator; //애니메이션 
+
+    [Header("Property")]
     [SerializeField] float breakPower;
     [SerializeField] float movePower;
     [SerializeField] float maxXSpeed;
     [SerializeField] float maxYSpeed;
-    //1시 40분 부터 중지 
+    [SerializeField] float jumpSpeed;
+
 
     Vector2 moveDir;
 
@@ -29,13 +37,13 @@ public class PlayerController : MonoBehaviour
         {
             rigid.AddForce(Vector2.right * moveDir.x * movePower); 
         }
-        else if (moveDir.x==0&&rigid.velocity.x>0) 
+        else if (moveDir.x==0&&rigid.velocity.x>0.1f) 
             //움직이지 않거나  
         {
             //움직이는 반대의 힘으로 이동 (브레이크 )
             rigid.AddForce(Vector2.left * breakPower);
         }
-        else if(moveDir.x==0&&rigid.velocity.x<0)
+        else if(moveDir.x==0&&rigid.velocity.x<-0.1f)
         {
             rigid.AddForce(Vector2.right*breakPower);
         }
@@ -46,16 +54,47 @@ public class PlayerController : MonoBehaviour
             velocity.y = -maxYSpeed;     //y의 값만 바꾸기 위한 방법 너무 빨리 떨어질 때 통과하는 문제를 해결하기 위해
             rigid.velocity = velocity;
         }
+
+        animator.SetFloat("YSpeed", rigid.velocity.y); //값으로도 애니메이터의 파라메터를 설정해 줄 수 있음 
     }
+
+    private void Jump()
+    {
+        //Addforce와 veloctiy 방식의 차이 
+        Vector2 velocity=rigid.velocity;
+        velocity.y = jumpSpeed;
+        rigid.velocity = velocity;
+    }
+
 
     void OnMove(InputValue value)
     {
         moveDir=value.Get<Vector2>(); //2d 이므로 vector2 이용 (-1,1 ) 
-    }
-    void OnJump(in InputValue value)
-    {
+        //스프라이트 렌더러의 Flip 변경으로 좌/ 우 바라보는 방향 변경 
 
+        if(moveDir.x<0) //왼쪽 보는 상황
+        {
+            render.flipX = true;
+            animator.SetBool("Run", true);
+        }
+        else if(moveDir.x>0) //0일 때는 (가만있는 상태) 방향전환 필요없기 때문에 >0 
+        {
+            render.flipX=false;
+            animator.SetBool("Run", true);
+        }
+        else //움직임이 0 인 상황 
+        {
+            animator.SetBool("Run", false);
+        }
     }
+    void OnJump(InputValue value)
+    {
+        if(value.isPressed)
+        {
+            Jump();
+        }
+    }
+
     void Start()
     {
         
