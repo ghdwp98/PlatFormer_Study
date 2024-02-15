@@ -39,7 +39,7 @@ public class Eagle : Monster
     }
 
     [SerializeField] float moveSpeed;
-    [SerializeField] float findRange;
+    [SerializeField] float findRange; 
 
     private Vector3 startPos;
     private State curState; //몬스터의 현재 상태 확인 위한 변수 
@@ -71,25 +71,48 @@ public class Eagle : Monster
                 DiedUpdate();
                 break;
         }
-
-
+        // start()에서 이미 state를 idle로 놓ㅇ므 --> idle이 진행 중 이기 때문에 따로 if문등으로
+        // 분기를 정해줄 필요없이 함수 내에서 state를 변경하는 것 만으로도 상태를 변경시킬 수 있다. 
+         
 
 
 
 
     }
 
-    void IdleUpdate()
+    void IdleUpdate()  // 이글이 idle 상태일 때 해야 할 행동들만 담고 있는 함수 
     {
+        // idle 상태에서 하는 것 x 상태를 변경시켜줌 
 
+        if(Vector2.Distance(playerTransform.position,transform.position)<findRange)
+        {
+            curState = State.Trace; // 가까이 오면 trace 상태로 변경 
+        }
+            //player의 위치와 자신의 위치를 가지고 거리를 구함 
     }
     void TraceUpdate()
     {
+        Vector3 dir = (playerTransform.position - transform.position).normalized; //방향 구하기 정규화
+        // 도착지 - 출발지 의 정규화로 방향을 구할 수 있다. 
+        transform.Translate(dir*moveSpeed*Time.deltaTime);
+        //추적 --> 그 방향으로 움직임 
 
+        //거리가 멀어지면 추적 중지 후 리턴상태로 변경 필요 
+        if (Vector2.Distance(playerTransform.position, transform.position) > findRange)
+        {
+            curState = State.Return;
+        }
     }
     void ReturnUpdate()
     {
+        Vector3 dir = (startPos - transform.position).normalized;
+        // 현재 지점과 원래지점(start) 의 방향을 구하고 
+        transform.Translate (dir*moveSpeed*Time.deltaTime); //정해진 속도로 이동 
 
+        if(transform.position==startPos)
+        {
+            curState = State.Idle; //원래 위치로 돌아오면 다시 idle 상태로 변경 
+        }
     }
     void DiedUpdate()
     {

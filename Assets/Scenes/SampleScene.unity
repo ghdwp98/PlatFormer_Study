@@ -3697,9 +3697,12 @@ PolygonCollider2D:
       - {x: 0.5117473, y: -0.87805146}
       - {x: 0.5918033, y: -0.8796665}
       - {x: 0.81984943, y: -0.8741346}
+      - {x: 1.1979802, y: -0.8711101}
       - {x: 1.3959615, y: -0.89222515}
-      - {x: 1.4036012, y: -0.21842328}
-      - {x: 1.4101725, y: 0.36116758}
+      - {x: 1.7254803, y: -0.86670595}
+      - {x: 2.8557796, y: -0.8671732}
+      - {x: 2.8407037, y: 0.31777892}
+      - {x: 1.4242893, y: 0.35123536}
   m_UseDelaunayMesh: 0
 --- !u!1 &826840551
 GameObject:
@@ -4549,8 +4552,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b48e4846d0efff0478dbd7ca35daee34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
-  findRange: 3
+  moveSpeed: 2
+  findRange: 5
 --- !u!213 &1207090239
 Sprite:
   m_ObjectHideFlags: 0
