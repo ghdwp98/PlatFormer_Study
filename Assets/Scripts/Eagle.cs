@@ -47,19 +47,24 @@ public class Eagle : Monster
     public Transform playerTransform;
 
     StateMachine fsm;
+
     IdleState idleState;
     TraceState traceState;
+    ReturnState returnState;
+
+
 
     private void Awake()
     {
         fsm = new StateMachine();
         idleState = new IdleState(this);
         traceState = new TraceState(this);
+        returnState=new ReturnState(this);
     }
 
     void Start()
     {
-        // fsm.SetInitState();
+        fsm.SetInitState(idleState);
         curState=State.Idle; 
         playerTransform = GameObject.FindWithTag("Player").transform; //캐싱 기법 공부
         //항상 쓰는 변수는 start에서 계산하고 진입 
@@ -69,8 +74,7 @@ public class Eagle : Monster
 
     void Update()
     {
-        fsm.Update(); 
-
+        fsm.Update();
     }
 
     public void ChangeState(string stateName)
@@ -82,6 +86,9 @@ public class Eagle : Monster
                     break;
             case "Trace":
                 fsm.ChangeState(traceState);
+                break;
+            case "Return":
+                fsm.ChangeState(returnState);
                 break;
         }
     }
@@ -99,8 +106,6 @@ public class Eagle : Monster
             
         }
 
-        
-
         public void Enter()
             
         {
@@ -112,7 +117,7 @@ public class Eagle : Monster
             // 아무것도 안함 
             if (Vector2.Distance(playerTransform.position, owner.transform.position) < findRange)
             {
-                //상태 변경 
+                owner.ChangeState("Trace");
             }
         }
         public void Exit()
@@ -121,7 +126,7 @@ public class Eagle : Monster
         }
     }
 
-    private class TraceState:IState
+    public class TraceState:IState
     {
         Eagle owner;
         Transform playerTransform;
@@ -145,7 +150,7 @@ public class Eagle : Monster
             
             if (Vector2.Distance(playerTransform.position, owner.transform.position) > findRange)
             {
-                // 상태 변경
+                owner.ChangeState("Return");
             }
         }
 
@@ -154,6 +159,39 @@ public class Eagle : Monster
 
         }
     }
+    private class ReturnState :IState
+    {
+        Eagle owner;
+        float moveSpeed = 10;
+        public ReturnState(Eagle owner)
+        {
+            this.owner = owner;
+            
+        }
+        public void Enter()
+        {
+            Debug.Log("return enter");
+        }
+        public void Update()
+        {
+            Vector3 dir = (owner.startPos - owner.transform.position).normalized;
+            
+            owner.transform.Translate(dir * moveSpeed * Time.deltaTime);
+
+            if (Vector2.Distance(owner.transform.position, owner.startPos) < 0.01f)
+            {
+                owner.ChangeState("Idle");
+            }
+        }
+        public void Exit()
+        {
+
+        }
+    }
+
+
+
+
 
 
    /* void IdleUpdate()  // 이글이 idle 상태일 때 해야 할 행동들만 담고 있는 함수 
@@ -184,9 +222,6 @@ public class Eagle : Monster
             curState = State.Idle;
         }*//* // player와 겹쳤을 때 바들바들 떠는 문제 어떻게 해결해야 할지? 
         //player와의 접촉 이벤트로 가려버리기?
-
-
-
 
     }
 
