@@ -103,17 +103,20 @@ public class Eagle : Monster
             curState = State.Return;
         }
     }
+
     void ReturnUpdate()
     {
         Vector3 dir = (startPos - transform.position).normalized;
         // 현재 지점과 원래지점(start) 의 방향을 구하고 
         transform.Translate (dir*moveSpeed*Time.deltaTime); //정해진 속도로 이동 
 
-        if(transform.position==startPos)
+        if(Vector2.Distance(transform.position , startPos)<0.01f) //독수리가 바들바들 떠는 문제 해결해야함 
+            // ==를 써서 똑같다고 하면 안된다. 
         {
             curState = State.Idle; //원래 위치로 돌아오면 다시 idle 상태로 변경 
         }
     }
+
     void DiedUpdate()
     {
 
