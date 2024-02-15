@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -41,12 +42,24 @@ public class Eagle : Monster
     [SerializeField] float moveSpeed;
     [SerializeField] float findRange; 
 
-    private Vector3 startPos;
-    private State curState; //몬스터의 현재 상태 확인 위한 변수 
-    private Transform playerTransform;
-    
+    public Vector3 startPos;
+    public State curState; //몬스터의 현재 상태 확인 위한 변수 
+    public Transform playerTransform;
+
+    StateMachine fsm;
+    IdleState idleState;
+    TraceState traceState;
+
+    private void Awake()
+    {
+        fsm = new StateMachine();
+        idleState = new IdleState(this);
+        traceState = new TraceState(this);
+    }
+
     void Start()
     {
+        // fsm.SetInitState();
         curState=State.Idle; 
         playerTransform = GameObject.FindWithTag("Player").transform; //캐싱 기법 공부
         //항상 쓰는 변수는 start에서 계산하고 진입 
@@ -56,31 +69,94 @@ public class Eagle : Monster
 
     void Update()
     {
-        switch(curState)
-        {
-            case State.Idle:
-                IdleUpdate();
-                break;
-            case State.Trace:
-                TraceUpdate(); 
-                break;
-            case State.Return:
-                ReturnUpdate();
-                break;
-            case State.Died:
-                DiedUpdate();
-                break;
-        }
-        // start()에서 이미 state를 idle로 놓ㅇ므 --> idle이 진행 중 이기 때문에 따로 if문등으로
-        // 분기를 정해줄 필요없이 함수 내에서 state를 변경하는 것 만으로도 상태를 변경시킬 수 있다. 
-         
-
-
-
+        fsm.Update(); 
 
     }
 
-    void IdleUpdate()  // 이글이 idle 상태일 때 해야 할 행동들만 담고 있는 함수 
+    public void ChangeState(string stateName)
+    {
+        switch(stateName)
+        {
+            case "Idle":
+                fsm.ChangeState(idleState);
+                    break;
+            case "Trace":
+                fsm.ChangeState(traceState);
+                break;
+        }
+    }
+
+
+    public class IdleState:IState
+    {
+        private Eagle owner;
+        private Transform playerTransform;
+        private float findRange = 5; //캡슐화 외부 CLASS에서 건들 수 없음 
+
+        public IdleState(Eagle owner)
+        {
+            this.owner = owner;
+            
+        }
+
+        
+
+        public void Enter()
+            
+        {
+            Debug.Log("idle enter");
+            playerTransform = GameObject.FindWithTag("Player").transform;
+        }
+        public void Update()
+        {
+            // 아무것도 안함 
+            if (Vector2.Distance(playerTransform.position, owner.transform.position) < findRange)
+            {
+                //상태 변경 
+            }
+        }
+        public void Exit()
+        {
+
+        }
+    }
+
+    private class TraceState:IState
+    {
+        Eagle owner;
+        Transform playerTransform;
+        float moveSpeed = 2;
+        float findRange = 5;
+
+        public TraceState(Eagle owner)
+        {
+            this.owner = owner;
+        }
+
+        public void Enter()
+        {
+            Debug.Log("trace enter");
+            playerTransform = GameObject.FindWithTag("Player").transform;
+        }
+        public void Update()
+        {
+            Vector3 dir = (playerTransform.position - owner.transform.position).normalized; 
+            owner.transform.Translate(dir * moveSpeed * Time.deltaTime);
+            
+            if (Vector2.Distance(playerTransform.position, owner.transform.position) > findRange)
+            {
+                // 상태 변경
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+
+
+   /* void IdleUpdate()  // 이글이 idle 상태일 때 해야 할 행동들만 담고 있는 함수 
     {
         // idle 상태에서 하는 것 x 상태를 변경시켜줌 
 
@@ -102,6 +178,16 @@ public class Eagle : Monster
         {
             curState = State.Return;
         }
+
+        *//*if (Vector2.Distance(transform.position, playerTransform.position) < 0.01f)
+        {
+            curState = State.Idle;
+        }*//* // player와 겹쳤을 때 바들바들 떠는 문제 어떻게 해결해야 할지? 
+        //player와의 접촉 이벤트로 가려버리기?
+
+
+
+
     }
 
     void ReturnUpdate()
@@ -115,12 +201,17 @@ public class Eagle : Monster
         {
             curState = State.Idle; //원래 위치로 돌아오면 다시 idle 상태로 변경 
         }
+
+        if(Vector2.Distance(transform.position,playerTransform.position)<findRange)
+        {
+            curState= State.Trace;
+        }
     }
 
     void DiedUpdate()
     {
 
-    }
+    }*/
 
    
 
